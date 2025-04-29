@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Feedback | Faculty Feedback System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+        }
+        .btn-gradient {
+            background: linear-gradient(90deg, #4f46e5 0%, #8b5cf6 100%);
+        }
+        .danger-gradient {
+            background: linear-gradient(90deg, #ef4444 0%, #f43f5e 100%);
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .table-animation {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .header-shadow {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <link href="/static/styles.css" rel="stylesheet">
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <!-- Gradient top header -->
+    <div class="gradient-bg text-white py-3 px-4 shadow-lg">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+                <span class="font-semibold text-lg">Faculty Feedback System</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-2 text-sm">
+                <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full">Admin Panel</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main navigation -->
+    <nav class="bg-white shadow-md header-shadow">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between">
+                <div class="flex space-x-7">
+                    <div>
+                        <a href="{{ url_for('dashboard_admin') }}" class="flex items-center py-4 px-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            <span class="font-semibold text-gray-700 text-lg">Admin Dashboard</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('dashboard_admin') }}" class="flex items-center py-2 px-4 text-gray-500 font-medium hover:text-indigo-600 transition duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back to Dashboard
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="flex items-center py-2 px-4 danger-gradient text-white font-medium rounded-lg hover:opacity-90 transition duration-300 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="max-w-6xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 text-sm text-gray-500">
+                <li>
+                    <a href="{{ url_for('dashboard_admin') }}" class="hover:text-indigo-600">Dashboard</a>
+                </li>
+                <li class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li class="text-indigo-600 font-medium">
+                    Faculty Feedback
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <main class="max-w-6xl mx-auto pb-8 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8 fade-in border-t-4 border-indigo-500">
+            <div class="flex items-center mb-6">
+                <div class="h-12 w-12 rounded-full gradient-bg flex items-center justify-center mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                        Feedback for {{ faculty_name }}
+                    </h2>
+                    <p class="text-gray-500 text-sm">All student feedback submissions</p>
+                </div>
+            </div>
+            
+            {% if feedbacks %}
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                    <table class="min-w-full bg-white table-animation">
+                        <thead>
+                            <tr class="gradient-bg text-white text-left">
+                                <th class="py-3 px-4 font-semibold">Year</th>
+                                <th class="py-3 px-4 font-semibold">Branch</th>
+                                <th class="py-3 px-4 font-semibold">Subject</th>
+                                <th class="py-3 px-4 font-semibold">Feedback</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-600 divide-y divide-gray-200">
+                            {% for feedback in feedbacks %}
+                                <tr class="hover:bg-gray-50 transition duration-150">
+                                    <td class="py-3 px-4">{{ feedback[0] }}</td>
+                                    <td class="py-3 px-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                            {{ feedback[1] }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">{{ feedback[2] }}</td>
+                                    <td class="py-3 px-4">
+                                        <div class="max-w-lg">
+                                            <p class="line-clamp-2 hover:line-clamp-none transition-all duration-200">{{ feedback[3] }}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-right text-gray-500 text-sm">
+                    Total feedback entries: {{ feedbacks|length }}
+                </div>
+            {% else %}
+                <div class="py-12 flex flex-col items-center justify-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-gray-600 text-center mb-2">No feedback available for this faculty member.</p>
+                    <p class="text-gray-500 text-sm text-center">Feedback submissions will appear here once students provide their input.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Quick navigation card -->
+        <div class="bg-white p-6 rounded-lg shadow-md fade-in">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Quick Navigation</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="{{ url_for('dashboard_admin') }}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:shadow-md transition duration-300">
+                    <div class="h-10 w-10 rounded-md btn-gradient flex items-center justify-center mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-700">Faculty Dashboard</h4>
+                        <p class="text-sm text-gray-500">Return to main admin panel</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('logout') }}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-red-500 hover:shadow-md transition duration-300">
+                    <div class="h-10 w-10 rounded-md danger-gradient flex items-center justify-center mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-700">Sign Out</h4>
+                        <p class="text-sm text-gray-500">End your current session</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-lg font-semibold mb-1">Faculty Feedback System</h3>
+                    <p class="text-gray-400 text-sm">Improving education through feedback</p>
+                </div>
+                <div class="text-sm text-gray-400">
+                    © 2025 Faculty Feedback System. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

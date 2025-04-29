@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Faculty Feedback System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        .bg-gradient-custom {
+            background: linear-gradient(135deg, #6366f1, #3b82f6, #2dd4bf);
+            background-size: 200% 200%;
+            animation: gradient-animation 10s ease infinite;
+        }
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
+        }
+        .floating-input {
+            transition: all 0.3s ease;
+        }
+        .floating-input:focus {
+            transform: translateY(-2px);
+        }
+        .btn-glow {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        /* Character counter styling */
+        .char-counter {
+            transition: all 0.3s ease;
+        }
+        .char-counter.warning {
+            color: #f59e0b;
+        }
+        .char-counter.danger {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gradient-custom min-h-screen text-white">
+    <nav class="bg-white bg-opacity-10 backdrop-blur-lg shadow-lg border-b border-white border-opacity-20">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between">
+                <div class="flex space-x-7">
+                    <div>
+                        <a href="#" class="flex items-center py-4 px-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <span class="font-bold text-white text-lg">Student Dashboard</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('logout') }}" class="py-2 px-4 bg-red-500 bg-opacity-80 text-white font-medium rounded-lg hover:bg-opacity-100 transition duration-300 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white bg-opacity-10 backdrop-blur-md p-8 rounded-xl shadow-lg mb-8 fade-in animate__animated animate__fadeIn border border-white border-opacity-20">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Submit Feedback
+            </h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-4 rounded-md {% if category == 'error' %}bg-red-100 bg-opacity-30 text-red-100 border border-red-200{% else %}bg-green-100 bg-opacity-30 text-green-100 border border-green-200{% endif %} animate__animated animate__fadeIn">
+                            <div class="flex items-center">
+                                {% if category == 'error' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {% endif %}
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('dashboard_student') }}" class="animate__animated animate__fadeIn animate__delay-1s" id="feedbackForm">
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="faculty_id" class="block text-white font-medium mb-2">Faculty Member</label>
+                        <select id="faculty_id" name="faculty_id" required class="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white input-focus floating-input">
+                            <option value="" disabled selected class="text-gray-400">Select Faculty</option>
+                            {% for faculty in faculties %}
+                                <option value="{{ faculty[0] }}" class="text-gray-800">{{ faculty[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="year" class="block text-white font-medium mb-2">Year</label>
+                        <select id="year" name="year" required class="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white input-focus floating-input">
+                            <option value="" disabled selected class="text-gray-400">Select Year</option>
+                            <option value="1st Year" class="text-gray-800">1st Year</option>
+                            <option value="2nd Year" class="text-gray-800">2nd Year</option>
+                            <option value="3rd Year" class="text-gray-800">3rd Year</option>
+                            <option value="4th Year" class="text-gray-800">4th Year</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="branch" class="block text-white font-medium mb-2">Branch</label>
+                        <select id="branch" name="branch" required class="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white input-focus floating-input">
+                            <option value="" disabled selected class="text-gray-400">Select Branch</option>
+                            <option value="CSE" class="text-gray-800">Computer Science</option>
+                            <option value="ECE" class="text-gray-800">Electronics</option>
+                            <option value="ME" class="text-gray-800">Mechanical</option>
+                            <option value="CE" class="text-gray-800">Civil</option>
+                            <option value="EE" class="text-gray-800">Electrical</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="subject" class="block text-white font-medium mb-2">Subject</label>
+                        <input type="text" id="subject" name="subject" required class="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white input-focus floating-input" placeholder="Enter subject name">
+                        <datalist id="subject-suggestions"></datalist>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label for="feedback" class="block text-white font-medium mb-2 flex justify-between">
+                        <span>Your Feedback</span>
+                        <span id="charCount" class="text-sm char-counter">0/1000</span>
+                    </label>
+                    <textarea id="feedback" name="feedback" rows="5" required class="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white input-focus floating-input" placeholder="Please provide your detailed feedback here..." maxlength="1000"></textarea>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="anonymous" name="anonymous" class="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="anonymous" class="text-white">Submit feedback anonymously</label>
+                    </div>
+                    <div>
+                        <div class="text-white text-opacity-80 text-sm">Feedback quality: <span id="feedbackQuality">Not started</span></div>
+                        <div class="w-full bg-white bg-opacity-20 rounded-full h-2 mt-1">
+                            <div id="qualityBar" class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-lg transition duration-300 font-medium flex items-center justify-center custom-shadow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    Submit Feedback
+                </button>
+            </form>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-xl shadow-lg fade-in animate__animated animate__fadeIn animate__delay-1s border border-white border-opacity-20">
+                <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Feedback Guidelines
+                </h2>
+                <div class="text-white text-opacity-90 space-y-3">
+                    <p>Providing constructive feedback helps faculty members improve their teaching methods. Here are some tips:</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li>Be specific about what worked well and what could be improved</li>
+                        <li>Focus on behaviors and teaching methods rather than personal traits</li>
+                        <li>Provide examples to illustrate your points</li>
+                        <li>Suggest alternatives or improvements when highlighting issues</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-xl shadow-lg fade-in animate__animated animate__fadeIn animate__delay-1s border border-white border-opacity-20">
+                <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Effective Feedback Example
+                </h2>
+                <div class="text-white text-opacity-90">
+                    <div class="bg-white bg-opacity-5 p-4 rounded-lg border border-white border-opacity-10 italic">
+                        "Professor Smith's Data Structures course was well-organized. The visual diagrams helped me understand complex concepts. However, the pace was sometimes too fast during algorithm explanations. Adding more practice problems with step-by-step solutions would be helpful. The interactive coding demonstrations were particularly effective."
+                    </div>
+                    <div class="mt-3 text-sm">
+                        <p>This example is specific, constructive, and provides actionable suggestions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-xl shadow-lg fade-in animate__animated animate__fadeIn animate__delay-2s border border-white border-opacity-20">
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Upcoming Deadlines
+            </h2>
+            <div class="text-white text-opacity-90">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white bg-opacity-5 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-left border-b border-white border-opacity-10">Course</th>
+                                <th class="px-4 py-2 text-left border-b border-white border-opacity-10">Faculty</th>
+                                <th class="px-4 py-2 text-left border-b border-white border-opacity-10">Deadline</th>
+                                <th class="px-4 py-2 text-left border-b border-white border-opacity-10">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">Data Structures</td>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">Prof. Johnson</td>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">May 5, 2025</td>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">
+                                    <span class="px-2 py-1 bg-yellow-400 bg-opacity-20 text-yellow-200 rounded-full text-xs">Pending</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">Database Systems</td>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">Dr. Williams</td>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">May 10, 2025</td>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">
+                                    <span class="px-2 py-1 bg-red-400 bg-opacity-20 text-red-200 rounded-full text-xs">Urgent</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">Operating Systems</td>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">Prof. Davis</td>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">May 15, 2025</td>
+                                <td class="px-4 py-3 border-b border-white border-opacity-10">
+                                    <span class="px-2 py-1 bg-green-400 bg-opacity-20 text-green-200 rounded-full text-xs">Completed</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-12 py-6 bg-black bg-opacity-30">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-white text-opacity-70">© 2023 Faculty Feedback System. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dynamic subject selection based on faculty selection
+            const facultySelect = document.getElementById('faculty_id');
+            const subjectInput = document.getElementById('subject');
+            const subjectList = document.getElementById('subject-suggestions');
+            
+            if (facultySelect && subjectInput) {
+                facultySelect.addEventListener('change', function() {
+                    const facultyId = this.value;
+                    if (facultyId) {
+                        fetch(`/api/faculty/${facultyId}/subjects`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.subjects && data.subjects.length > 0) {
+                                    // Clear existing options
+                                    while (subjectList.firstChild) {
+                                        subjectList.removeChild(subjectList.firstChild);
+                                    }
+                                    
+                                    // Add new subject options
+                                    data.subjects.forEach(subject => {
+                                        const option = document.createElement('option');
+                                        option.value = subject;
+                                        subjectList.appendChild(option);
+                                    });
+                                }
+                            })
+                            .catch(error => console.error('Error fetching subjects:', error));
+                    }
+                });
+            }
+
+            // Character counter for feedback textarea
+            const feedbackTextarea = document.getElementById('feedback');
+            const charCount = document.getElementById('charCount');
+            
+            if (feedbackTextarea && charCount) {
+                feedbackTextarea.addEventListener('input', function() {
+                    const currentLength = this.value.length;
+                    const maxLength = this.getAttribute('maxlength');
+                    charCount.textContent = `${currentLength}/${maxLength}`;
+                    
+                    // Change color based on length
+                    if (currentLength > maxLength * 0.8) {
+                        charCount.classList.add('danger');
+                        charCount.classList.remove('warning');
+                    } else if (currentLength > maxLength * 0.5) {
+                        charCount.classList.add('warning');
+                        charCount.classList.remove('danger');
+                    } else {
+                        charCount.classList.remove('warning', 'danger');
+                    }
+                    
+                    // Update feedback quality
+                    updateFeedbackQuality(currentLength);
+                });
+            }
+            
+            // Feedback quality meter
+            function updateFeedbackQuality(length) {
+                const qualityText = document.getElementById('feedbackQuality');
+                const qualityBar = document.getElementById('qualityBar');
+                
+                let quality, percentage;
+                
+                if (length === 0) {
+                    quality = 'Not started';
+                    percentage = 0;
+                } else if (length < 50) {
+                    quality = 'Too brief';
+                    percentage = 20;
+                } else if (length < 100) {
+                    quality = 'Basic';
+                    percentage = 40;
+                } else if (length < 200) {
+                    quality = 'Good';
+                    percentage = 60;
+                } else if (length < 300) {
+                    quality = 'Detailed';
+                    percentage = 80;
+                } else {
+                    quality = 'Excellent';
+                    percentage = 100;
+                }
+                
+                qualityText.textContent = quality;
+                qualityBar.style.width = `${percentage}%`;
+                
+                // Add color based on percentage
+                qualityBar.className = 'h-2 rounded-full';
+                if (percentage <= 20) {
+                    qualityBar.classList.add('bg-red-500');
+                } else if (percentage <= 60) {
+                    qualityBar.classList.add('bg-yellow-500');
+                } else {
+                    qualityBar.classList.add('bg-green-500');
+                }
+            }
+            
+            // Form validation with visual feedback
+            const form = document.getElementById('feedbackForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (form) {
+                form.addEventListener('input', function() {
+                    const isValid = form.checkValidity();
+                    if (isValid) {
+                        submitBtn.classList.add('btn-glow');
+                    } else {
+                        submitBtn.classList.remove('btn-glow');
+                    }
+                });
+            }
+            
+            // Add scroll reveal animation
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate__fadeIn');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.fade-in').forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
