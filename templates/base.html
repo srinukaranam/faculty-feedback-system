@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Faculty Feedback System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+    <style>html,body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;}</style>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800">
+    <nav class="bg-white shadow-sm">
+        <div class="site-container">
+            <div class="flex justify-between items-center py-4">
+                <a href="{{ url_for('index') }}" class="flex items-center nav-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13"/></svg>
+                    <span class="font-semibold text-gray-900">Faculty Feedback</span>
+                </a>
+
+                <div class="hidden md:flex items-center space-x-3">
+                    {% if session.get('user') %}
+                        {# Show user-specific dashboard link and logout when authenticated #}
+                        {% if session.get('user') == 'student' %}
+                            <a href="{{ url_for('dashboard_student') }}" class="nav-link">Dashboard</a>
+                        {% elif session.get('user') == 'faculty' %}
+                            <a href="{{ url_for('dashboard_faculty') }}" class="nav-link">Dashboard</a>
+                        {% elif session.get('user') == 'admin' %}
+                            <a href="{{ url_for('dashboard_admin') }}" class="nav-link">Admin Panel</a>
+                        {% endif %}
+                        <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+                    {% else %}
+                        {# Anonymous users see login/register options only #}
+                        <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                        <a href="{{ url_for('register_student') }}" class="nav-link">Register as Student</a>
+                        <a href="{{ url_for('register_faculty') }}" class="nav-link">Register as Faculty</a>
+                        <a href="{{ url_for('admin_login') }}" class="nav-cta">Admin Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="site-container fade-up py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="mt-12 py-8 bg-white">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-gray-500">© 2025 Faculty Feedback System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

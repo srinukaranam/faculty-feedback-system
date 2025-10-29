@@ -19,10 +19,19 @@ def init_db():
         c.execute('''CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT, email TEXT UNIQUE, password TEXT, year TEXT, branch TEXT)''')
         c.execute('''CREATE TABLE faculty (id INTEGER PRIMARY KEY, name TEXT, email TEXT UNIQUE, password TEXT, years TEXT, branches TEXT, subjects TEXT)''')
         c.execute('''CREATE TABLE feedback (id INTEGER PRIMARY KEY, student_id INTEGER, faculty_id INTEGER, year TEXT, branch TEXT, subject TEXT, feedback_text TEXT)''')
+        # Admins table to store admin accounts
+        c.execute('''CREATE TABLE admins (id INTEGER PRIMARY KEY, name TEXT, email TEXT UNIQUE, password TEXT)''')
         conn.commit()
         conn.close()
 
 init_db()
+
+# Ensure admins table exists even if database was created before this change
+conn = sqlite3.connect('database.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS admins (id INTEGER PRIMARY KEY, name TEXT, email TEXT UNIQUE, password TEXT)''')
+conn.commit()
+conn.close()
 
 # Routes
 
@@ -89,16 +98,26 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        if email == 'srinukaranam2104@gmail.com' and password == '216T1A0524':
-            session['user'] = 'admin'
-            return redirect(url_for('dashboard_admin'))
+
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
+
+        # Check admin credentials from admins table first
+        c.execute('SELECT id, password FROM admins WHERE email = ?', (email,))
+        admin = c.fetchone()
+        if admin and check_password_hash(admin[1], password):
+            session['user'] = 'admin'
+            session['user_id'] = admin[0]
+            conn.close()
+            return redirect(url_for('dashboard_admin'))
+
+        # If not admin, check students and faculty tables
         c.execute('SELECT * FROM students WHERE email = ?', (email,))
         student = c.fetchone()
         c.execute('SELECT * FROM faculty WHERE email = ?', (email,))
         faculty = c.fetchone()
         conn.close()
+
         if student and check_password_hash(student[3], password):
             session['user'] = 'student'
             session['user_id'] = student[0]
@@ -109,7 +128,71 @@ def login():
             return redirect(url_for('dashboard_faculty'))
         else:
             flash('Invalid credentials', 'error')
+
     return render_template('login.html')
+
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    # Separate admin login page; prompt to use setup if no admins exist
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('SELECT COUNT(*) FROM admins')
+    admin_count = c.fetchone()[0]
+    conn.close()
+
+    if admin_count == 0:
+        flash('No admin account exists. Please create one first.', 'error')
+        return redirect(url_for('admin_setup'))
+
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('SELECT id, password FROM admins WHERE email = ?', (email,))
+        admin = c.fetchone()
+        conn.close()
+        if admin and check_password_hash(admin[1], password):
+            session['user'] = 'admin'
+            session['user_id'] = admin[0]
+            return redirect(url_for('dashboard_admin'))
+        else:
+            flash('Invalid admin credentials', 'error')
+
+    return render_template('admin_login.html')
+
+
+@app.route('/admin/setup', methods=['GET', 'POST'])
+def admin_setup():
+    # Allow creation of the first admin only when no admin exists
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('SELECT COUNT(*) FROM admins')
+    admin_count = c.fetchone()[0]
+    conn.close()
+
+    if admin_count > 0:
+        flash('Admin account already exists. Please login.', 'info')
+        return redirect(url_for('admin_login'))
+
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = generate_password_hash(request.form['password'])
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        try:
+            c.execute('INSERT INTO admins (name, email, password) VALUES (?, ?, ?)', (name, email, password))
+            conn.commit()
+            conn.close()
+            flash('Admin account created. Please login.', 'success')
+            return redirect(url_for('admin_login'))
+        except sqlite3.IntegrityError:
+            conn.close()
+            flash('Email already exists.', 'error')
+
+    return render_template('admin_setup.html')
 
 @app.route('/dashboard_student', methods=['GET', 'POST'])
 def dashboard_student():
@@ -176,8 +259,9 @@ def view_faculty_feedback(faculty_id):
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    # After logout, send the user back to the landing page instead of the login page
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))  # Use Render's $PORT or fallback to 10000
+    port = int(os.environ.get("PORT", 10002))  # Use Render's $PORT or fallback to 10000
     app.run(host='0.0.0.0', port=port)
